@@ -148,6 +148,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 
 def main():
+    try:
+        sys.stdout.reconfigure(line_buffering=True)   # readable logs when redirected to a file
+    except (AttributeError, ValueError):
+        pass
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--port", type=int, default=8787)
     ap.add_argument("--host", default="0.0.0.0", help="bind address (0.0.0.0 = reachable from the LAN)")
