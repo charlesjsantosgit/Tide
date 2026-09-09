@@ -1,0 +1,3 @@
+# Build output. Lives in a .nosync sibling so iCloud never evicts it.
+build.nosync/
+.DS_Store
