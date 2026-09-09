@@ -80,6 +80,31 @@ expand behaviour, word count.
 | `⌥⌘P` | show / hide the panel |
 | `⌘>` `⌘<` `⌘0` | zoom |
 
+## Updates and distribution
+
+Tide updates itself. It checks [GitHub Releases](https://github.com/charlesjsantosgit/Tide/releases)
+about once a day (and on **Tide › Check for Updates…**), shows the release notes, downloads the zip,
+verifies it is Tide, swaps the bundle on disk and relaunches. Settings › Updates has the switch and
+the feed URL.
+
+```
+./build.sh --package          # -> build.nosync/dist/Tide-<version>.zip + release.json
+python3 tools/serve.py        # local download page at http://localhost:8787/ (also on the LAN)
+tools/release.sh 1.0.1 "…"    # bump VERSION, build+test+package, commit, tag, push, GitHub release
+tools/test-update.sh          # end-to-end proof: a copy of the app updates itself from serve.py
+```
+
+`tools/serve.py` serves a download page with the full `.app` (zipped), and a feed at
+`/releases/latest` in the same JSON shape GitHub uses, so you can point the app at your own Mac
+to try an update before publishing it:
+
+```
+defaults write com.charlessantos.tide updateFeedURL http://localhost:8787/releases/latest
+```
+
+The binary has matching switches: `--version`, `--update-check [feed]`, `--update-dryrun [feed]`
+(download and verify only) and `--update-now [feed]` (install and relaunch).
+
 ## Build
 
 ```
@@ -94,7 +119,9 @@ Output lives in `build.nosync/` so iCloud never evicts it. The icon comes from
 `swift tools/make-icon.swift`.
 
 Hidden switches on the binary: `--selftest`, `--snapshot <dir>` (renders the sample
-document off-screen and captures the UI), `--dump <file>` (prints how a document imports).
+document off-screen and captures the UI), `--dump <file>` (prints how a document imports),
+plus the update switches above. `VERSION` holds the version number; `CHANGELOG.md` feeds the
+release notes.
 
 ## How it is put together
 
