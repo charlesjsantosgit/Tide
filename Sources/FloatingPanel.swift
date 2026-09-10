@@ -17,7 +17,7 @@ struct FloatingPanel: View {
     }
 
     var body: some View {
-        GlassEffectContainer(spacing: 20) {
+        GlassContainer(spacing: 20) {
             VStack(spacing: 0) {
                 if expanded {
                     ViewThatFits(in: .vertical) {
@@ -33,7 +33,7 @@ struct FloatingPanel: View {
                 }
             }
             .frame(width: expanded ? 244 : 46)
-            .glassEffect(.regular.tint(Theme.panelTint).interactive(), in: RoundedRectangle(cornerRadius: 23, style: .continuous))
+            .tideGlass(tint: Theme.panelTint, interactive: true, in: RoundedRectangle(cornerRadius: 23, style: .continuous))
         }
         .animation(.spring(response: 0.36, dampingFraction: 0.84), value: expanded)
         .onHover { inside in

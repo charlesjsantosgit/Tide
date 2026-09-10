@@ -9,18 +9,30 @@ VERSION="${VERSION_OVERRIDE:-$(tr -d '[:space:]' < VERSION)}"
 OUT="build.nosync"
 APP="$OUT/$APP_NAME.app"
 OPT="${OPT:--O}"
+# Liquid Glass needs the macOS 26 SDK (Xcode 26); with Xcode 16 the panel falls back to a frosted
+# material. Either way the app runs from macOS 14 up. Override with MIN_OS=…, ARCH=…, UNIVERSAL=1.
+SDK_VERSION="$(xcrun --sdk macosx --show-sdk-version 2>/dev/null || echo unknown)"
+MIN_OS="${MIN_OS:-14.0}"
+ARCH="${ARCH:-$(uname -m)}"
+SWIFTFLAGS="$OPT -swift-version 5 -module-name $APP_NAME -framework AppKit -framework SwiftUI -framework WebKit -framework AVFoundation -framework UniformTypeIdentifiers -lcompression ${EXTRA_SWIFTFLAGS:-}"
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
-echo "==> compiling ($OPT)"
-swiftc $OPT -swift-version 5 \
-  -target arm64-apple-macos26.0 \
-  -module-name "$APP_NAME" \
-  -framework AppKit -framework SwiftUI -framework WebKit -framework AVFoundation \
-  -framework UniformTypeIdentifiers -lcompression \
-  Sources/*.swift \
-  -o "$APP/Contents/MacOS/$APP_NAME"
+compile() { # arch, output
+  swiftc $SWIFTFLAGS -target "$1-apple-macos$MIN_OS" Sources/*.swift -o "$2"
+}
+echo "==> compiling ($OPT, SDK $SDK_VERSION, min macOS $MIN_OS)"
+if [ "${UNIVERSAL:-0}" = "1" ]; then
+  echo "    universal: arm64 + x86_64"
+  compile arm64 "$OUT/$APP_NAME-arm64"
+  compile x86_64 "$OUT/$APP_NAME-x86_64"
+  lipo -create "$OUT/$APP_NAME-arm64" "$OUT/$APP_NAME-x86_64" -output "$APP/Contents/MacOS/$APP_NAME"
+  rm -f "$OUT/$APP_NAME-arm64" "$OUT/$APP_NAME-x86_64"
+else
+  echo "    $ARCH"
+  compile "$ARCH" "$APP/Contents/MacOS/$APP_NAME"
+fi
 
 echo "==> resources"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/"
@@ -53,7 +65,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
   <key>CFBundleVersion</key><string>$VERSION</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
-  <key>LSMinimumSystemVersion</key><string>26.0</string>
+  <key>LSMinimumSystemVersion</key><string>$MIN_OS</string>
   <key>NSPrincipalClass</key><string>NSApplication</string>
   <key>NSHighResolutionCapable</key><true/>
   <key>NSSupportsAutomaticGraphicsSwitching</key><true/>

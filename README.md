@@ -114,9 +114,7 @@ The binary has matching switches: `--version`, `--update-check [feed]`, `--updat
 ./build.sh --shots         # regenerates the screenshots in docs/
 ```
 
-No Xcode project: `swiftc` straight into an app bundle, ad-hoc signed, macOS 26 SDK.
-Output lives in `build.nosync/` so iCloud never evicts it. The icon comes from
-`swift tools/make-icon.swift`.
+No Xcode project — `swiftc` straight to an app bundle, ad-hoc signed. Build output lives in `build.nosync/` so iCloud never evicts it. Xcode 26 (or its Command Line Tools) gives the Liquid Glass panel; with Xcode 16 the same sources build with a frosted-material panel. The app runs on macOS 14 and later (glass appears on macOS 26). `UNIVERSAL=1 ./build.sh` builds an arm64 + x86_64 binary; `MIN_OS`, `ARCH` and `EXTRA_SWIFTFLAGS` (e.g. `-D TIDE_NO_GLASS`) are honoured.
 
 Hidden switches on the binary: `--selftest`, `--snapshot <dir>` (renders the sample
 document off-screen and captures the UI), `--dump <file>` (prints how a document imports),

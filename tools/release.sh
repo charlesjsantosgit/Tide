@@ -16,7 +16,7 @@ if [ -n "$NOTES" ]; then
   mv "$tmp" CHANGELOG.md
 fi
 
-./build.sh --install --test --package
+UNIVERSAL=1 ./build.sh --install --test --package
 
 git add -A
 git commit -m "Release $NEW" || true

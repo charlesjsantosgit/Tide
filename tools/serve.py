@@ -66,7 +66,7 @@ h3{{margin:24px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.08
 ol{{padding-left:20px;line-height:1.6;font-size:14px}}
 </style></head><body><div class="card">
 <img class="icon" src="/icon.png" alt="">
-<h1>Tide</h1><div class="sub">Version {version} · {size_mb} MB · macOS 26 or later</div>
+<h1>Tide</h1><div class="sub">Version {version} · {size_mb} MB · macOS 14 or later · Liquid Glass on macOS 26</div>
 <a class="btn" href="/download">Download Tide.app</a>
 <div class="meta">SHA-256 <code>{sha}</code></div>
 <h3>Install</h3><ol><li>Unzip, drag <b>Tide.app</b> to Applications.</li>
