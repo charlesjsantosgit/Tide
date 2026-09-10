@@ -11,7 +11,15 @@ APP="$OUT/$APP_NAME.app"
 OPT="${OPT:--O}"
 # Liquid Glass needs the macOS 26 SDK (Xcode 26); with Xcode 16 the panel falls back to a frosted
 # material. Either way the app runs from macOS 14 up. Override with MIN_OS=…, ARCH=…, UNIVERSAL=1.
-SDK_VERSION="$(xcrun --sdk macosx --show-sdk-version 2>/dev/null || echo unknown)"
+SDK_VERSION="$(xcrun --sdk macosx --show-sdk-version 2>/dev/null || echo 0)"
+if [ "${SDK_VERSION%%.*}" -lt 26 ] && [ "${NO_TOOLCHAIN_UPDATE:-0}" != "1" ]; then
+  # Older Xcode: update to the newest toolchain first (tools/setup-toolchain.sh), then carry on.
+  if tools/setup-toolchain.sh; then
+    SDK_VERSION="$(xcrun --sdk macosx --show-sdk-version 2>/dev/null || echo 0)"
+  else
+    echo "==> continuing with SDK $SDK_VERSION: the panel will be frosted glass instead of Liquid Glass"
+  fi
+fi
 MIN_OS="${MIN_OS:-14.0}"
 ARCH="${ARCH:-$(uname -m)}"
 SWIFTFLAGS="$OPT -swift-version 5 -module-name $APP_NAME -framework AppKit -framework SwiftUI -framework WebKit -framework AVFoundation -framework UniformTypeIdentifiers -lcompression ${EXTRA_SWIFTFLAGS:-}"
